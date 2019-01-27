@@ -12,10 +12,4 @@ public class BreadthFirstAgent extends Agent {
 			nodes.add(n);
 		}
 	}
-	
-	@Override
-	protected void HeuristicFn(Node n)
-	{
-		n.Heuristic = 0;
-	}
 }

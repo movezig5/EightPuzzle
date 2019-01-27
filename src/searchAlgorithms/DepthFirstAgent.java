@@ -12,10 +12,4 @@ public class DepthFirstAgent extends Agent {
 			nodes.push(n);
 		}
 	}
-	
-	@Override
-	protected void HeuristicFn(Node n)
-	{
-		n.Heuristic = 0;
-	}
 }

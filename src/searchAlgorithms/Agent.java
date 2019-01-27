@@ -3,23 +3,34 @@ package searchAlgorithms;
 import java.util.LinkedList;
 import java.util.PriorityQueue;
 import java.util.Stack;
-import enums.Result;
+import java.util.Scanner;
 import dataStructures.Node;
+import enums.Result;
 
 public abstract class Agent {
+	private boolean verbose = false;
+	
 	public Result Search(Node init, Node goal, LinkedList<Node> solution)
 	{
-		return Search(init, goal, solution, 50);
+		return Search(init, goal, solution, 100);
 	}
 	public Result Search(Node init, Node goal, LinkedList<Node> solution, int maxDepth)
 	{
+		Scanner scanner = new Scanner(System.in);
 		LinkedList<Node> nodes = new LinkedList<Node>();
 		LinkedList<Node> history = new LinkedList<Node>();
+		LinkedList<Node> expanded;
 		nodes.add(init);
 		Node current;
 		while(!nodes.isEmpty())
 		{
 			current = nodes.pop();
+			if(verbose)
+			{
+				System.out.println("Next node expanded (depth : " + current.Depth + "):");
+				current.PrintState();
+				scanner.nextLine();
+			}
 			if(current.Depth >= maxDepth)
 			{
 				return Result.MAXDEPTH;
@@ -39,7 +50,15 @@ public abstract class Agent {
 				}
 				return Result.SUCCESS;
 			}
-			QueuingFn(nodes, Expand(current, history));
+			expanded = Expand(current, history);
+			if(verbose)
+			{
+				System.out.println("Results of expansion:");
+				PrintNodes(expanded);
+				scanner.nextLine();
+			}
+			QueuingFn(nodes, expanded);
+			QueuingFn(nodes, expanded);
 			history.add(current);
 		}
 		return Result.FAILURE;
@@ -47,6 +66,8 @@ public abstract class Agent {
 	
 	protected Result PrioritySearch(Node init, Node goal, LinkedList<Node> solution, int maxDepth)
 	{
+		Scanner scanner = new Scanner(System.in);
+		LinkedList<Node> expanded;
 		PriorityQueue<Node> nodes = new PriorityQueue<Node>();
 		LinkedList<Node> history = new LinkedList<Node>();
 		nodes.add(init);
@@ -54,6 +75,12 @@ public abstract class Agent {
 		while(!nodes.isEmpty())
 		{
 			current = nodes.remove();
+			if(verbose)
+			{
+				System.out.println("Next node expanded (depth : " + current.Depth + "):");
+				current.PrintState();
+				scanner.nextLine();
+			}
 			if(current.Depth >= maxDepth)
 			{
 				return Result.MAXDEPTH;
@@ -73,7 +100,14 @@ public abstract class Agent {
 				}
 				return Result.SUCCESS;
 			}
-			QueuingFn(nodes, Expand(current, history));
+			expanded = Expand(current, history);
+			if(verbose)
+			{
+				System.out.println("Results of expansion:");
+				PrintNodes(expanded);
+				scanner.nextLine();
+			}
+			QueuingFn(nodes, expanded);
 			history.add(current);
 		}
 		return Result.FAILURE;
@@ -182,7 +216,7 @@ public abstract class Agent {
 		return null;
 	}
 	
-	private int ZeroIndex(Node node)
+	protected int ZeroIndex(Node node)
 	{
 		for(int i = 0; i < 9; i++)
 		{
@@ -210,6 +244,34 @@ public abstract class Agent {
 		}
 	}
 	
-	protected abstract void QueuingFn(LinkedList<Node> nodes, LinkedList<Node> expanded);
-	protected abstract void HeuristicFn(Node node);
+	protected void QueuingFn(LinkedList<Node> nodes, LinkedList<Node> expanded) {}
+	protected void HeuristicFn(Node node)
+	{
+		node.Heuristic = 0;
+	}
+	
+	private void PrintNodes(LinkedList<Node> nodes)
+	{
+		for(Node n : nodes)
+			System.out.print("_____________ ");
+		System.out.print("\n");
+		for(Node n : nodes)
+			System.out.print("| " + n.State[0] + " | " + n.State[1] + " | " + n.State[2] + " | ");
+		System.out.print("\n");
+		for(Node n : nodes)
+			System.out.print("|___|___|___| ");
+		System.out.print("\n");
+		for(Node n : nodes)
+			System.out.print("| " + n.State[3] + " | " + n.State[4] + " | " + n.State[5] + " | ");
+		System.out.print("\n");
+		for(Node n : nodes)
+			System.out.print("|___|___|___| ");
+		System.out.print("\n");
+		for(Node n : nodes)
+			System.out.print("| " + n.State[6] + " | " + n.State[7] + " | " + n.State[8] + " | ");
+		System.out.print("\n");
+		for(Node n : nodes)
+			System.out.print("|___|___|___| ");
+		System.out.print("\n");
+	}
 }

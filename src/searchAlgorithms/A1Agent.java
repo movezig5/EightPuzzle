@@ -1,10 +1,20 @@
 package searchAlgorithms;
 
 import java.util.LinkedList;
+
 import dataStructures.Node;
 import enums.Result;
+import enums.State;
+import searchAlgorithms.Agent;
 
-public class UniformCostAgent extends Agent {
+public class A1Agent extends Agent {
+	private Node goal;
+	
+	public A1Agent()
+	{
+		goal = new Node(State.GOAL);
+	}
+	
 	@Override
 	public Result Search(Node init, Node goal, LinkedList<Node> solution, int maxDepth)
 	{
@@ -14,6 +24,12 @@ public class UniformCostAgent extends Agent {
 	@Override
 	protected void HeuristicFn(Node node)
 	{
-		node.Heuristic = node.PathCost;
+		int numOutOfPlace = 0;
+		for(int i = 0; i < 9; i++)
+		{
+			if(node.State[i] != goal.State[i])
+				numOutOfPlace++;
+		}
+		node.Heuristic = numOutOfPlace;
 	}
 }
