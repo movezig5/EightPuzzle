@@ -11,9 +11,11 @@ package enums;
  * 					indicates that the search function reached
  * 					the maximum allowed depth without finding
  * 					a solution
+ * 		TIMEUP:		The operation took too long.
  */
 public enum Result {
 	SUCCESS,
 	FAILURE,
-	MAXDEPTH
+	MAXDEPTH,
+	TIMEUP
 }

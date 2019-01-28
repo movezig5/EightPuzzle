@@ -33,9 +33,9 @@ public class A1Agent extends Agent {
 	// Search
 	// Search is overridden here to perform a PrioritySearch instead.
 	@Override
-	public Result Search(Node init, Node goal, LinkedList<Node> solution, int maxDepth)
+	public Result Search(Node init, Node goal, LinkedList<Node> solution, int maxDepth, int[] data)
 	{
-		return PrioritySearch(init, goal, solution, maxDepth);
+		return PrioritySearch(init, goal, solution, maxDepth, data);
 	}
 	
 	// HeuristicFn

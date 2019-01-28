@@ -171,22 +171,27 @@ public class Node implements Comparable<Node> {
 		System.out.println("║ " + State[6] + " ║ " + State[7] + " ║ " + State[8] + " ║");
 		System.out.println("╚═══╩═══╩═══╝");
 		System.out.print("Operator: ");
-		switch(Action)
+		if(Action == null)
+			System.out.print("NONE");
+		else
 		{
-		case UP:
-			System.out.print("UP");
-			break;
-		case DOWN:
-			System.out.print("DOWN");
-			break;
-		case LEFT:
-			System.out.print("LEFT");
-			break;
-		case RIGHT:
-			System.out.println("RIGHT");
-			break;
-		default:
-			System.out.println("NONE");
+			switch(Action)
+			{
+			case UP:
+				System.out.print("UP");
+				break;
+			case DOWN:
+				System.out.print("DOWN");
+				break;
+			case LEFT:
+				System.out.print("LEFT");
+				break;
+			case RIGHT:
+				System.out.print("RIGHT");
+				break;
+			default:
+				System.out.print("NONE");
+			}
 		}
 		System.out.print(", Cost: ");
 		if(Parent != null)

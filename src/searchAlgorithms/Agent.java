@@ -14,27 +14,34 @@ import enums.Result;
  */
 public abstract class Agent {
 	// Search
-	// Calls the general search function with a maximum depth of 50.
-	public Result Search(Node init, Node goal, LinkedList<Node> solution)
+	// Calls the general search function with no maximum depth.
+	public Result Search(Node init, Node goal, LinkedList<Node> solution, int[] data)
 	{
-		return Search(init, goal, solution, 50);
+		return Search(init, goal, solution, -1, data);
 	}
 	
 	// Search
 	// A general search function that keeps nodes in a queue (represented
 	// here by a linked list). The algorithm varies based on the implementation
-	// of the queuing function.
-	public Result Search(Node init, Node goal, LinkedList<Node> solution, int maxDepth)
+	// of the queuing function. It will stop running after 5 minutes.
+	// The algorithm will run until the specified max depth is reached;
+	// if the max depth is -1, there is no max depth. Finally, the function
+	// keeps track of the total number of nodes popped and the peak queue length.
+	public Result Search(Node init, Node goal, LinkedList<Node> solution, int maxDepth, int[] data)
 	{
+		long startTime = System.currentTimeMillis();
+		long currTime = 0;
 		LinkedList<Node> nodes = new LinkedList<Node>();
 		LinkedList<Node> history = new LinkedList<Node>();
-		LinkedList<Node> expanded;
 		nodes.add(init);
 		Node current;
+		int numPopped = 0;
+		int maxQueueLength = 1;
 		while(!nodes.isEmpty())
 		{
 			current = nodes.pop();
-			if(current.Depth >= maxDepth)
+			numPopped++;
+			if(maxDepth > -1 && current.Depth >= maxDepth)
 			{
 				return Result.MAXDEPTH;
 			}
@@ -51,11 +58,17 @@ public abstract class Agent {
 				{
 					solution.add(nodeStack.pop());
 				}
+				data[0] = numPopped;
+				data[1] = maxQueueLength;
 				return Result.SUCCESS;
 			}
-			expanded = Expand(current, history);
-			QueuingFn(nodes, expanded);
+			QueuingFn(nodes, Expand(current, history));
 			AddToHistory(current, history);
+			if(nodes.size() > maxQueueLength)
+				maxQueueLength = nodes.size();
+			currTime = System.currentTimeMillis();
+			if((currTime - startTime) / 60000 > 4)
+				return Result.TIMEUP;
 		}
 		return Result.FAILURE;
 	}
@@ -65,17 +78,21 @@ public abstract class Agent {
 	// of a queue. The priority queue stores nodes in ascending order
 	// of their evaluation (the "Heuristic" variable). The algorithm
 	// varies based on the implementation of the heuristic function.
-	protected Result PrioritySearch(Node init, Node goal, LinkedList<Node> solution, int maxDepth)
+	protected Result PrioritySearch(Node init, Node goal, LinkedList<Node> solution, int maxDepth, int[] data)
 	{
-		LinkedList<Node> expanded;
+		long startTime = System.currentTimeMillis();
+		long currTime = 0;
 		PriorityQueue<Node> nodes = new PriorityQueue<Node>();
 		LinkedList<Node> history = new LinkedList<Node>();
 		nodes.add(init);
 		Node current;
+		int numPopped = 0;
+		int maxQueueLength = 1;
 		while(!nodes.isEmpty())
 		{
 			current = nodes.remove();
-			if(current.Depth >= maxDepth)
+			numPopped++;
+			if(maxDepth > -1 && current.Depth >= maxDepth)
 			{
 				return Result.MAXDEPTH;
 			}
@@ -92,11 +109,17 @@ public abstract class Agent {
 				{
 					solution.add(nodeStack.pop());
 				}
+				data[0] = numPopped;
+				data[1] = maxQueueLength;
 				return Result.SUCCESS;
 			}
-			expanded = Expand(current, history);
-			QueuingFn(nodes, expanded);
+			QueuingFn(nodes, Expand(current, history));
 			AddToHistory(current, history);
+			if(nodes.size() > maxQueueLength)
+				maxQueueLength = nodes.size();
+			currTime = System.currentTimeMillis();
+			if((currTime - startTime) / 60000 > 4)
+				return Result.TIMEUP;
 		}
 		return Result.FAILURE;
 	}

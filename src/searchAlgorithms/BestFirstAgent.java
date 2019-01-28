@@ -19,9 +19,9 @@ public class BestFirstAgent extends Agent {
 	// Search
 	// Overrides the search function to use PrioritySearch instead.
 	@Override
-	public Result Search(Node init, Node goal, LinkedList<Node> solution, int maxDepth)
+	public Result Search(Node init, Node goal, LinkedList<Node> solution, int maxDepth, int[] data)
 	{
-		return PrioritySearch(init, goal, solution, maxDepth);
+		return PrioritySearch(init, goal, solution, maxDepth, data);
 	}
 
 	// HeuristicFn

@@ -128,6 +128,7 @@ public class EightPuzzle {
 		Result result;
 		String depthString;
 		int maxDepth;
+		int[] data = new int[2];
 		long startTime;
 		long stopTime;
 		while(selection == 0)
@@ -170,18 +171,18 @@ public class EightPuzzle {
 				if(selection == '3')
 					agent = new A3Agent();
 				
-				System.out.print("Choose a maximum search depth (default: 50): ");
+				System.out.print("Choose a maximum search depth (leave blank for no maximum): ");
 				depthString = s.nextLine();
 				if(depthString.isEmpty())
 				{
-					depthString = "50";
+					depthString = "-1";
 				}
 				maxDepth = Integer.parseInt(depthString);
 				
 				if(agent != null)
 				{
 					startTime = System.currentTimeMillis();
-					result = agent.Search(config, new Node(State.GOAL), solution, maxDepth);
+					result = agent.Search(config, new Node(State.GOAL), solution, maxDepth, data);
 					stopTime = System.currentTimeMillis();
 					if(result == Result.SUCCESS)
 					{
@@ -190,6 +191,7 @@ public class EightPuzzle {
 						System.out.println("Solution found:");
 						for(Node n : solution)
 							n.PrintState();
+						System.out.println("--------------");
 						System.out.println("Final cost: " + solution.getLast().PathCost);
 						if(timeMillis > 1000)
 						{
@@ -199,6 +201,8 @@ public class EightPuzzle {
 						{
 							System.out.println("Time: " + timeMillis + " milliseconds");
 						}
+						System.out.println("Number of nodes popped: " + data[0]);
+						System.out.println("Peak queue length: " + data[1]);
 					}
 					if(result == Result.FAILURE)
 					{
@@ -207,6 +211,10 @@ public class EightPuzzle {
 					if(result == Result.MAXDEPTH)
 					{
 						System.out.println("The search algorithm has reached the maximum search depth.");
+					}
+					if(result == Result.TIMEUP)
+					{
+						System.out.println("The search algorithm could not find a solution within 5 minutes; aborting.");
 					}
 				}
 					
