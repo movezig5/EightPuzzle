@@ -3,23 +3,28 @@ package searchAlgorithms;
 import java.util.LinkedList;
 import dataStructures.Node;
 import enums.Result;
-import enums.State;
 import searchAlgorithms.Agent;
 
+/* **************
+ * Class: A3Agent
+ * **************
+ * Description:	A subclass of Agent that uses the A*3 algorithm. This algorithm uses
+ * 				an original heuristic. The heuristic is the sum of the costs of each
+ * 				potential action from a given state. (Plus the current path cost)
+ */
+
 public class A3Agent extends Agent{
-	private Node goal;
-	
-	public A3Agent()
-	{
-		goal = new Node(State.GOAL);
-	}
-	
+	// Search
+	// Overrides search so that it performs a priority search instead.
 	@Override
 	public Result Search(Node init, Node goal, LinkedList<Node> solution, int maxDepth)
 	{
 		return PrioritySearch(init, goal, solution, maxDepth);
 	}
 	
+	// HeuristicFn
+	// Sets the given node's Heuristic value to the sum of the costs
+	// of all possible moves from that node, plus the node's path cost.
 	@Override
 	protected void HeuristicFn(Node node)
 	{
@@ -33,6 +38,6 @@ public class A3Agent extends Agent{
 			totalCosts += node.State[zIdx + 1];
 		if(zIdx % 3 != 0)
 			totalCosts += node.State[zIdx - 1];
-		node.Heuristic = totalCosts;
+		node.Heuristic = totalCosts + node.PathCost;
 	}
 }

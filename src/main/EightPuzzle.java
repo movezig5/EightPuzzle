@@ -6,15 +6,29 @@ import dataStructures.Node;
 import enums.*;
 import searchAlgorithms.*;
 
+/* ******************
+ * Class: EightPuzzle
+ * ******************
+ * Description:	The main class of the program. Displays menus,
+ * 				receives user input, executes search algorithms,
+ * 				and displays the resulting solution.
+ */
+
 public class EightPuzzle {
+	// main
+	// Welcomes the user, then displays the main menu.
 	public static void main(String[] args)
 	{
 		Scanner scanner = new Scanner(System.in);
 		System.out.println("Welcome to the Eight Puzzle Solving AI.");
 		System.out.println("Made by Daniel Ziegler for CSC 480");
 		MainMenu(scanner);
+		scanner.close();
 	}
 	
+	// MainMenu
+	// Prompts the user to choose an option. The function accepts
+	// both upper-case and lower-case characters for selections.
 	private static void MainMenu(Scanner s)
 	{
 		char selection = 0;
@@ -53,6 +67,11 @@ public class EightPuzzle {
 		}
 	}
 	
+	// SolveMenu
+	// Prompts the user to choose which configuration to solve.
+	// The user can choose the easy, medium, or hard configuration.
+	// The program also lets the user enter a custom starting configuration,
+	// view the configurations, or return to the top menu.
 	private static void SolveMenu(Scanner s)
 	{
 		char selection = 0;
@@ -62,6 +81,7 @@ public class EightPuzzle {
 			System.out.println("E - Easy");
 			System.out.println("M - Medium");
 			System.out.println("H - Hard");
+			System.out.println("C - Custom configuration");
 			System.out.println("V - View configurations");
 			System.out.println("B - Go back");
 			System.out.print("Selection: ");
@@ -71,6 +91,7 @@ public class EightPuzzle {
 				selection == 'E' || selection == 'e' ||
 				selection == 'M' || selection == 'm' ||
 				selection == 'H' || selection == 'h' ||
+				selection == 'C' || selection == 'c' ||
 				selection == 'V' || selection == 'v' ||
 				selection == 'B' || selection == 'b'
 			) {
@@ -80,6 +101,8 @@ public class EightPuzzle {
 					AlgorithmMenu(s, new Node(State.MEDIUM));
 				if(selection == 'H' || selection == 'h')
 					AlgorithmMenu(s, new Node(State.HARD));
+				if(selection == 'C' || selection == 'c')
+					AlgorithmMenu(s, CustomNode(s));
 				if(selection == 'V' || selection == 'v')
 					ViewMenu(s);
 			} else {
@@ -90,6 +113,13 @@ public class EightPuzzle {
 		}
 	}
 	
+	// Algorithm menu
+	// After the user has selected a starting configuration,
+	// this function prompts them to choose which algorithm to use,
+	// then executes the algorithm on the configuration and displays
+	// the results. If the search reaches the maximum depth, the
+	// program displays an error instead. The user can also view
+	// the configuration they chose, or return to the top menu.
 	private static void AlgorithmMenu(Scanner s, Node config)
 	{
 		char selection = 0;
@@ -98,6 +128,8 @@ public class EightPuzzle {
 		Result result;
 		String depthString;
 		int maxDepth;
+		long startTime;
+		long stopTime;
 		while(selection == 0)
 		{
 			System.out.println("Choose which algorithm you'd like to use to solve the puzzle:");
@@ -107,8 +139,8 @@ public class EightPuzzle {
 			System.out.println("U - Uniform cost");
 			System.out.println("G - Best-first");
 			System.out.println("1 - A*1 (h = number of tiles not in correct position");
-			System.out.println("2 - A*2 (h = csum of Manhattan distances between all tiles and their correct positions");
-			System.out.println("3 - A*3 (h = TBD)");
+			System.out.println("2 - A*2 (h = sum of Manhattan distances between all tiles and their correct positions");
+			System.out.println("3 - A*3 (h = sum of costs for all potential moves)");
 			System.out.println("V - View chosen configuration");
 			System.out.println("R - Restart");
 			selection = s.nextLine().charAt(0);
@@ -140,19 +172,33 @@ public class EightPuzzle {
 				
 				System.out.print("Choose a maximum search depth (default: 50): ");
 				depthString = s.nextLine();
-				if(depthString.length() != 0)
-					maxDepth = Integer.parseInt(depthString);
-				else
-					maxDepth = 50;
+				if(depthString.isEmpty())
+				{
+					depthString = "50";
+				}
+				maxDepth = Integer.parseInt(depthString);
 				
 				if(agent != null)
 				{
+					startTime = System.currentTimeMillis();
 					result = agent.Search(config, new Node(State.GOAL), solution, maxDepth);
+					stopTime = System.currentTimeMillis();
 					if(result == Result.SUCCESS)
 					{
+						long timeMillis = (stopTime - startTime);
+						float timeSecs = (float)timeMillis / 1000.0f;
 						System.out.println("Solution found:");
 						for(Node n : solution)
 							n.PrintState();
+						System.out.println("Final cost: " + solution.getLast().PathCost);
+						if(timeMillis > 1000)
+						{
+							System.out.println(String.format("Time: %.3f seconds", timeSecs));
+						}
+						else
+						{
+							System.out.println("Time: " + timeMillis + " milliseconds");
+						}
 					}
 					if(result == Result.FAILURE)
 					{
@@ -181,6 +227,10 @@ public class EightPuzzle {
 		}
 	}
 	
+	// ViewMenu
+	// Dieplays the view menu. This menu prompts the user to select
+	// a configuration to view--easy, medium, hard, or goal. The user
+	// can also return to the previous menu.
 	private static void ViewMenu(Scanner s)
 	{
 		char selection = 0;
@@ -228,5 +278,40 @@ public class EightPuzzle {
 			}
 			System.out.print("\n");
 		}
+	}
+	
+	// CustomNode
+	// Lets the user enter a custom starting node. The function
+	// prompts the user to enter the value for each tile, one at a time,
+	// and checks to make sure it's from 0-8 and isn't a duplicate.
+	// Returns the custom node afer creating it.
+	private static Node CustomNode(Scanner s)
+	{
+		System.out.println("Please input the numbers for each position (0 for empty space).");
+		int[] customState = new int[9];
+		for(int i = 0; i < 9; i++)
+		{
+			int input = -1;
+			while(input == -1)
+			{
+				System.out.print("Position " + i + ": ");
+				input = Integer.parseInt(s.nextLine());
+				if(input > 8 || input < -1)
+					input = -1;
+				for(int j = 0; j < i; j++)
+				{
+					if(input == customState[j])
+						input = -1;
+				}
+				if(input == -1)
+					System.out.println("Invalid input. Please try again.");
+				else
+					customState[i] = input;
+			}
+		}
+		Node result = new Node(customState);
+		System.out.println("Your custom configuration is as follows:");
+		result.PrintState();
+		return result;
 	}
 }
